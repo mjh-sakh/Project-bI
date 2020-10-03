@@ -39,4 +39,3 @@
 Мысль навеяна тем, что уже есть примитивная тележка с ардуино на борту. 
 
 [![Карта проекта тележки](https://img.youtube.com/vi/JyJT2D_18iI/0.jpg)](https://www.youtube.com/watch?v=JyJT2D_18iI)
-

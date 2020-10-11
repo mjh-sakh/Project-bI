@@ -15,7 +15,7 @@
 
 ## Менторы
 
-- [x] tgenman (Дима)
+- [x] tgenman (Дима) (God of Github)
 - [x] Андрей
 
 

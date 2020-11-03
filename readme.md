@@ -1,44 +1,30 @@
-# О  проекте
-Фигачим тележку, которая объезжает помещение и строит карту. Смотри вики. 
+# About Project
+Education project aimed to build skills necessary to develop complex solution in a team. Self-driven drone has been chosen as a subject for the project. 
 
 
-# Команда
-## Кодеры
+# Team
+## Coders
 
-- [x] mjh-sakh (Андрей)
-- [x] Аскар
-- [x] Саша
-- [x] Вова
-- [x] Руслан
-- [x] Саша(a1b23)
-- [x] gorodecki (Антон)
-- [x] Сайран
-- [x] Олег
+- [x] Andrey (mjh-sakh)
+- [x] Vladimir (YasnoSolnishko)
+- [x] Alexadner (a1b23)
+- [x] Anton (gorodecki)
+- [x] Sairan (Sairan-ds)
+- [x] Oleg (olegboev)
+- [x] Maira (MariaMosina)
 
+## Mentors
 
-
-## Менторы
-
-- [x] tgenman (Дима)
-- [x] Андрей
+- [x] Dima (tgenman)
+- [x] Andrey (daerhiel)
 
 
-# Ключевые цели:
-- попробовать какой-нибудь канбан или другое средство координации команды
-- инструмент GIT вместе
-- что-то кинуть себе в резюме
-- практическое применение навыков программирования
+# Key Goals:
+- learn Kanban or other way to coordinate team
+- master version control: Git, Code Reviews etc.
+- Have project that can illustrate our skills for potential employer
+- Practice of coding 
 
-
-# Доп хотелки:
-- иметь на выходе хоть какое-то решение, а не только код
-- связь с физическим миром (камера, тележка...)
-
-
-# Рабочие идеи
-## Тележка
-Задача: сделать тележку, которая будет объезжать квартиру по периметру и строить план квартиры.
-Аналог для понимания - робот пылесос, который строит карту.
-Мысль навеяна тем, что уже есть примитивная тележка с ардуино на борту.
-
-[![Карта проекта тележки](https://img.youtube.com/vi/JyJT2D_18iI/0.jpg)](https://www.youtube.com/watch?v=JyJT2D_18iI)
+# Extras:
+- Have a drone which actually works
+- Learn typical libraries for self-driving drone

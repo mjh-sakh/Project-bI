@@ -11,7 +11,7 @@ Education project aimed to build skills necessary to develop complex solution in
 - [x] Anton (gorodecki)
 - [x] Sairan (Sairan-ds)
 - [x] Oleg (olegboev)
-- [x] Maira (MariaMosina)
+- [x] Maria (MariaMosina)
 
 ## Mentors
 

@@ -8,7 +8,7 @@ class KeyPoint:
         Constructor.
         :param x: x-coordinate of keypoint.
         """
-        self.__x = x
+        self.x = x
 
     @property
     def x(self):

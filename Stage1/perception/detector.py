@@ -20,10 +20,12 @@ class Detector:
         descriptors = list()
 
         for i in range(image.shape[1] - 1):
+            # Keypoint is a point between two different pixels
             px0 = image[:, i, :]
             px1 = image[:, i + 1, :]
             if not np.array_equal(px0, px1):
                 keypoints.append(KeyPoint(i + 0.5))
+                # Descriptor is a concatenated values of the left and right pixels
                 descriptors.append(np.concatenate([px0.flatten(), px1.flatten()], axis=0))
 
         return keypoints, descriptors

@@ -41,6 +41,6 @@ def camera_1d(plan: np.array, center: (float, float), direction: float, view_ang
     for i in range(resolution):
         # display = True if any([i == 0, i == int(resolution/2), i == resolution - 1]) else False
         display = True
-        ray_i_angle = direction + view_angle * (i / resolution - 0.5)
+        ray_i_angle = direction - view_angle * (i / resolution - 0.5)
         scan.append(cast_ray(plan, center, ray_i_angle, condition, display))
     return np.array(scan)

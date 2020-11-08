@@ -23,7 +23,8 @@ class TestDetector(unittest.TestCase):
 
         self.assertEqual(len(keypoints), len(descriptors))
         self.assertEqual(len(keypoints), 1)
-        self.assertEqual(keypoints[0].x, 2.5)
+        self.assertEqual(keypoints[0].pt[0], 2.5)
+        self.assertEqual(keypoints[0].pt[1], 0)
         np.testing.assert_array_equal(descriptors[0], np.array([100] * 3 + [200] * 3))
 
 

@@ -57,7 +57,7 @@ class Env1d(gym.Env):
         return np.array(self.state), reward, done, {}
 
     def reset(self):
-        self.drone_coordinates = self.place_drone(self.plan)
+        self.drone_coordinates = self.place_drone()
         self.state = [self.drone_coordinates[0], self.drone_coordinates[1], np.random.rand() * 2 * np.pi, 0]
         return np.array(self.state)
 
@@ -142,15 +142,14 @@ class Env1d(gym.Env):
 
         return key_pressed
 
-    @staticmethod
-    def place_drone(plan) -> (int, int):
+    def place_drone(self) -> (int, int):
         """
         Randomly places agent on map/plan at valid point.
         Returns coordinates.
         """
         pixel = [0, 0, 0]
         while sum(pixel) < 255 * 3:
-            x = np.random.randint(0, plan.shape[0])
-            y = np.random.randint(0, plan.shape[1])
-            pixel = plan[x, y]
+            x = np.random.randint(0, self.plan.shape[0])
+            y = np.random.randint(0, self.plan.shape[1])
+            pixel = self.plan[x, y]
         return x, y

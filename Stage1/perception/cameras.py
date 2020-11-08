@@ -1,5 +1,4 @@
-import numpy as np
-from env_1d import *
+from environment.env_1d import *
 
 
 def is_wall(pixel: np.array):

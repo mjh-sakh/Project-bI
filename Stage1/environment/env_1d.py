@@ -1,5 +1,5 @@
 import numpy as np
-import cv2 as cv
+import cv2
 import os
 
 
@@ -8,7 +8,7 @@ def load_plan(file: str) -> np.array:
     Read plan *file* in 'jpg' format and returns plan array.
     """
     assert os.path.isfile(file), f"No file '{file}' exist to read. Please check file name and path."
-    return cv.imread(file)
+    return cv2.imread(file)
 
 
 def save_plan(plan: np.array, file: str):
@@ -23,9 +23,9 @@ def show_plan(plan: np.array, window_name="Plan") -> int:
     Shows plan in window until any button is hit.
     Returns key code which was pressed when window closed.
     """
-    cv.imshow(window_name, plan)
-    key_pressed = cv.waitKey(0)
-    cv.destroyWindow(window_name)
+    cv2.imshow(window_name, plan)
+    key_pressed = cv2.waitKey(0)
+    cv2.destroyWindow(window_name)
     return key_pressed
 
 
@@ -79,3 +79,38 @@ def place_drone(plan) -> (int, int):
         y = np.random.randint(0, plan.shape[1])
         pixel = plan[x, y]
     return x, y
+
+def draw_pland_and_frames(plan, frame_prev, frame_curr, matches):
+    """
+    Creates an image with plan, current and previous frames and matching keypoints.
+    :param plan: environment plan
+    :param frame_prev: previous frame
+    :param frame_curr: current frame
+    :param matches: matched keypoints between frames
+    :return: resulting image
+    """
+
+    scale = plan.shape[1] / frame_prev.image.shape[1]
+
+    scan_prev_resized = cv2.resize(frame_prev.image, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
+    scan_curr_resized = cv2.resize(frame_curr.image, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
+
+    kp1_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * scale, kp.size) for kp in frame_prev.keypoints]
+    kp2_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * scale, kp.size) for kp in frame_curr.keypoints]
+
+    for kp in kp1_resized:
+        cv2.circle(scan_prev_resized, tuple(np.round(np.array(kp.pt)).astype(np.int)), 5, (255, 255, 255), 2)
+    for kp in kp2_resized:
+        cv2.circle(scan_curr_resized, tuple(np.round(np.array(kp.pt)).astype(np.int)), 5, (255, 255, 255), 2)
+
+    scans = np.vstack([scan_prev_resized, scan_curr_resized])
+
+    for match in matches:
+        p1 = kp1_resized[match.queryIdx].pt
+        p2 = kp2_resized[match.trainIdx].pt
+        p1_coord = tuple(np.round(np.array(p1)).astype(np.int))
+        p2_coord = tuple(np.round(np.array(p2) + [0, scan_prev_resized.shape[0]]).astype(np.int))
+        cv2.line(scans, p1_coord, p2_coord, (255, 255, 255), 2)
+
+    output = np.vstack([plan, scans])
+    return output

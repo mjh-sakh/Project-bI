@@ -84,7 +84,7 @@ class Env1d(gym.Env):
         Read plan *file* in 'jpg' format and returns plan array.
         """
         assert os.path.isfile(file), f"No file '{file}' exist to read. Please check file name and path."
-        return cv.imread(file)
+        return cv2.imread(file)
 
     @staticmethod
     def save_plan(plan: np.array, file: str):
@@ -99,9 +99,9 @@ class Env1d(gym.Env):
         Shows plan in window until any button is hit.
         Returns key code which was pressed when window closed.
         """
-        cv.imshow(window_name, plan)
-        key_pressed = cv.waitKey(0)
-        cv.destroyWindow(window_name)
+        cv2.imshow(window_name, plan)
+        key_pressed = cv2.waitKey(0)
+        cv2.destroyWindow(window_name)
         return key_pressed
 
     def show_layers(self, *layers, **kwargs):

@@ -34,12 +34,13 @@ def main():
 
         image_output = draw_pland_and_frames(plan_with_scan, frame_prev, frame_curr, matches)
 
-        cv2.imshow('map', image_output)
-        k = cv2.waitKey(25)
-        if k == 27:
-            break
+demo_map = Env1d(r'environment/demo_map_1.jpg')
 
-        frame_prev = frame_curr
+for _ in range(20):
+    scan = camera_1d(demo_map.plan, demo_map.drone_coordinates, np.random.rand() * 2 * np.pi, np.pi / 6, 20, is_wall)
+    demo_map.drone_coordinates = demo_map.place_drone()
+
+demo_map.show_plan(demo_map.plan)
 
 
 if __name__ == "__main__":

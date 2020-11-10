@@ -40,18 +40,29 @@ def simple_work_with_env():
     env1d = Env1d(r'environment/demo_map_2.bmp')
     env1d.reset()
     actions = [0, 0]
+    plan_with_scan = None
 
     for _ in range(100):
-        env1d.render()
+
+        env1d.render(plan_background=plan_with_scan)
 
         # actions = env1d.action_space.sample()  # random selection of speed and turn
         actions = demo_drive(actions)
         observation, reward, done, info = env1d.step(actions)
 
+        x, y, theta, speed = observation
+        print(x, y)
+        if not is_wall(env1d.plan[int(x), int(y)]):
+            plan_with_scan = env1d.plan.copy()
+            scan = camera_1d(plan_with_scan, (x, y), theta, np.pi / 6, 20, is_wall)
+        else:
+            plan_with_scan = None
+
         # print(observation)
         time.sleep(.1)
 
     env1d.close()
+
 
 def demo_drive(actions):
     speed = actions[0] + np.random.rand()

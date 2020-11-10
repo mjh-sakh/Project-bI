@@ -8,21 +8,29 @@ from gym.envs.classic_control import rendering
 
 
 class ImageObject:
-    def __init__(self, bites):
-        self.bites = bites
+    """
+    Image Object that holds image information and provides it on read method.
+    It's required to trick pyglet.image.load.
+    """
+    def __init__(self, _bytes):
+        self.bytes = _bytes
 
     def read(self):
-        return self.bites
+        return self.bytes
 
 
 class NPImage(rendering.Geom):
+    """
+    Alternative Image class for OpenAI Gym.
+    It creates image from provided numpy array.
+    """
     def __init__(self, fname, array_img, width, height):
         rendering.Geom.__init__(self)
         self.extension = os.path.splitext(fname)[1].lower()
         self.set_color(1.0, 1.0, 1.0)
         self.width = width
         self.height = height
-        file = self.conv_array_to_bytes(array_img)
+        file = self.convert_array_to_bytes(array_img)
         img = pyglet.image.load(fname, file=file)
         self.img = img
         self.flip = False
@@ -30,7 +38,7 @@ class NPImage(rendering.Geom):
     def render1(self):
         self.img.blit(0, 0, width=self.width, height=self.height)
 
-    def conv_array_to_bytes(self, array: np.array):
+    def convert_array_to_bytes(self, array: np.array):
         success, encoded_image = cv2.imencode(self.extension, array)
         return ImageObject(encoded_image.tobytes())
 

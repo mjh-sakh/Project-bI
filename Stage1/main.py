@@ -36,7 +36,10 @@ def main():
         image_output = draw_pland_and_frames(plan_with_scan, frame_prev, frame_curr, matches)
 
 
-def simple_work_with_env():
+def example_work_with_env():
+    """
+    Just an example of how to work with OpenGym environment.
+    """
     env1d = Env1d(r'environment/demo_map_2.bmp')
     env1d.reset()
     actions = [0, 0]
@@ -65,10 +68,13 @@ def simple_work_with_env():
 
 
 def demo_drive(actions):
+    """
+    slowly turns and accelerates drone to show it's movement on the map
+    """
     speed = actions[0] + np.random.rand()
     turn = np.pi / 60
     return [speed, turn]
 
 
 if __name__ == "__main__":
-    simple_work_with_env()
+    example_work_with_env()

@@ -7,7 +7,7 @@ from perception.frame import Frame
 
 
 def main():
-    plan = load_plan(r'environment/demo_map_2.bmp')
+    plan = Env1d.load_plan(r'environment/demo_map_2.bmp')
 
     detector = Detector()
     matcher = cv2.BFMatcher.create(normType=cv2.NORM_L2, crossCheck=True)

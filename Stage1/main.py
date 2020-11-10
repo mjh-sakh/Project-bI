@@ -4,6 +4,7 @@ from perception.cameras import *
 from environment.env_1d import *
 from perception.detector import Detector
 from perception.frame import Frame
+import time
 
 
 def main():
@@ -35,5 +36,21 @@ def main():
         image_output = draw_pland_and_frames(plan_with_scan, frame_prev, frame_curr, matches)
 
 
+def simple_work_with_env():
+    env1d = Env1d(r'environment/demo_map_2.bmp')
+    env1d.reset()
+
+    for _ in range(10):
+        env1d.render()  # not yet implemented
+
+        actions = env1d.action_space.sample()  # random selection of speed and turn
+        observation, reward, done, info = env1d.step(actions)
+
+        print(observation)
+        time.sleep(.2)
+
+    env1d.close()
+
+
 if __name__ == "__main__":
-    main()
+    simple_work_with_env()

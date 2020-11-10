@@ -12,6 +12,7 @@ Education project aimed to build skills necessary to develop complex solution in
 - [x] Sairan (Sairan-ds)
 - [x] Oleg (olegboev)
 - [x] Maria (MariaMosina)
+- [x] Pavel (bukpal)
 
 ## Mentors
 

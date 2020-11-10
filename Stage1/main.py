@@ -42,7 +42,7 @@ def simple_work_with_env():
     actions = [0, 0]
 
     for _ in range(100):
-        env1d.render()  # not yet implemented
+        env1d.render()
 
         # actions = env1d.action_space.sample()  # random selection of speed and turn
         actions = demo_drive(actions)

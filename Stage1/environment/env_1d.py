@@ -4,6 +4,35 @@ import os
 import gym
 import pyglet
 from gym import spaces
+from gym.envs.classic_control import rendering
+
+
+class ImageObject:
+    def __init__(self, bites):
+        self.bites = bites
+
+    def read(self):
+        return self.bites
+
+
+class NPImage(rendering.Geom):
+    def __init__(self, fname, array_img, width, height):
+        rendering.Geom.__init__(self)
+        self.extension = os.path.splitext(fname)[1].lower()
+        self.set_color(1.0, 1.0, 1.0)
+        self.width = width
+        self.height = height
+        file = self.conv_array_to_bytes(array_img)
+        img = pyglet.image.load(fname, file=file)
+        self.img = img
+        self.flip = False
+
+    def render1(self):
+        self.img.blit(0, 0, width=self.width, height=self.height)
+
+    def conv_array_to_bytes(self, array: np.array):
+        success, encoded_image = cv2.imencode(self.extension, array)
+        return ImageObject(encoded_image.tobytes())
 
 
 class Env1d(gym.Env):
@@ -62,22 +91,25 @@ class Env1d(gym.Env):
         self.state = [self.drone_coordinates[0], self.drone_coordinates[1], np.random.rand() * 2 * np.pi, 0]
         return np.array(self.state)
 
-    def render(self, mode='human'):
+    def render(self, mode='human', plan_background=None):
+        if plan_background is None:
+            plan_background = self.plan
+
         screen_width = self.plan.shape[0]
         screen_height = self.plan.shape[1]
 
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
-            plan = rendering.Image(self.plan_file_path, screen_width, screen_height)
-            self.plantrans = rendering.Transform()
-            plan.add_attr(self.plantrans)
+            # plan = rendering.Image(self.plan_file_path, screen_width, screen_height)
+            plan = NPImage(self.plan_file_path, plan_background, screen_width, screen_height)
+            # self.plantrans = rendering.Transform()
+            # plan.add_attr(self.plantrans)
             self.viewer.add_geom(plan)
             drone = rendering.FilledPolygon([(-20, -5), (-20, 5), (0, 0)])
             self.dronetrans = rendering.Transform()
             drone.add_attr(self.dronetrans)
             self.viewer.add_geom(drone)
-
 
         # TODO: add plan
         # gym doesn't work with images, only primitive forms, so need to find a way to draw a np.array
@@ -89,7 +121,7 @@ class Env1d(gym.Env):
         x, y, theta, _ = self.state
         self.dronetrans.set_translation(x, y)
         self.dronetrans.set_rotation(theta)
-        self.plantrans.set_translation(screen_width/2, screen_height/2)
+        # self.plantrans.set_translation(screen_width / 2, screen_height / 2)
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 

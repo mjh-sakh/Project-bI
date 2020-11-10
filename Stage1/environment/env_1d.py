@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import os
 import gym
+import pyglet
 from gym import spaces
 
 
@@ -68,10 +69,15 @@ class Env1d(gym.Env):
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
+            plan = rendering.Image(self.plan_file_path, screen_width, screen_height)
+            self.plantrans = rendering.Transform()
+            plan.add_attr(self.plantrans)
+            self.viewer.add_geom(plan)
             drone = rendering.FilledPolygon([(-20, -5), (-20, 5), (0, 0)])
             self.dronetrans = rendering.Transform()
             drone.add_attr(self.dronetrans)
             self.viewer.add_geom(drone)
+
 
         # TODO: add plan
         # gym doesn't work with images, only primitive forms, so need to find a way to draw a np.array
@@ -83,6 +89,7 @@ class Env1d(gym.Env):
         x, y, theta, _ = self.state
         self.dronetrans.set_translation(x, y)
         self.dronetrans.set_rotation(theta)
+        self.plantrans.set_translation(screen_width/2, screen_height/2)
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 

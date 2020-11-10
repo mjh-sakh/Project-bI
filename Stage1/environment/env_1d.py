@@ -20,7 +20,7 @@ class Env1d(gym.Env):
             0: speed, px/sec
             1: turn, radians 
         """
-        self.action_space = spaces.Box(low=[0, -2 * np.pi], high=[100, 2 * np.pi])
+        self.action_space = spaces.Box(low=np.array([0, -2 * np.pi]), high=np.array([100, 2 * np.pi]))
 
         """
         Observation space = State:
@@ -29,8 +29,8 @@ class Env1d(gym.Env):
             2: direction theta, radians from x axis ccw
             3: speed, px/s
         """
-        self.observation_space = spaces.Box(low=[0, 0, 0, 0],
-                                            high=[self.plan.shape[0], self.plan.shape[1], 2 * np.pi, 100])
+        self.observation_space = spaces.Box(low=np.array([0, 0, 0, 0]),
+                                            high=np.array([self.plan.shape[0], self.plan.shape[1], 2 * np.pi, 100]))
 
         self.drone_coordinates = None
         self.state = None

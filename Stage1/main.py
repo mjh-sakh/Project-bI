@@ -39,17 +39,24 @@ def main():
 def simple_work_with_env():
     env1d = Env1d(r'environment/demo_map_2.bmp')
     env1d.reset()
+    actions = [0, 0]
 
-    for _ in range(10):
+    for _ in range(100):
         env1d.render()  # not yet implemented
 
-        actions = env1d.action_space.sample()  # random selection of speed and turn
+        # actions = env1d.action_space.sample()  # random selection of speed and turn
+        actions = demo_drive(actions)
         observation, reward, done, info = env1d.step(actions)
 
-        print(observation)
-        time.sleep(.2)
+        # print(observation)
+        time.sleep(.1)
 
     env1d.close()
+
+def demo_drive(actions):
+    speed = actions[0] + np.random.rand()
+    turn = np.pi / 60
+    return [speed, turn]
 
 
 if __name__ == "__main__":

@@ -219,11 +219,11 @@ class Env1d(gym.Env):
         :param frame_prev: previous frame
         :param frame_curr: current frame
         :param matches: matched keypoints between frames
+        :param frame_width: width of frame stripe at the bottom of plan image in px
         :return: resulting image
         """
 
         scale = plan.shape[1] / frame_prev.image.shape[1]
-        frame_width = 15
 
         scan_prev_resized = cv2.resize(frame_prev.image, None, fx=scale, fy=frame_width, interpolation=cv2.INTER_NEAREST)
         scan_curr_resized = cv2.resize(frame_curr.image, None, fx=scale, fy=frame_width, interpolation=cv2.INTER_NEAREST)

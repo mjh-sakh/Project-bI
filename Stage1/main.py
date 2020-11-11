@@ -33,7 +33,15 @@ def main():
         if frame_curr.descriptors and frame_prev.descriptors:
             matches = matcher.match(np.array(frame_prev.descriptors), np.array(frame_curr.descriptors))
 
-        image_output = draw_pland_and_frames(plan_with_scan, frame_prev, frame_curr, matches)
+        image_output = Env1d.draw_plan_and_frames(plan_with_scan, frame_prev, frame_curr, matches)
+        
+        cv2.imshow('map', image_output)
+        k = cv2.waitKey(25)
+        # Press 'Esc' for exit
+        if k == 27:
+            break
+
+        frame_prev = frame_curr
 
 
 def example_work_with_env():

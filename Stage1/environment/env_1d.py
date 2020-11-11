@@ -212,7 +212,7 @@ class Env1d(gym.Env):
 
 
     @staticmethod
-    def draw_plan_and_frames(plan, frame_prev, frame_curr, matches):
+    def draw_plan_and_frames(plan, frame_prev, frame_curr, matches, frame_width=15):
         """
         Creates an image with plan, current and previous frames and matching keypoints.
         :param plan: environment plan
@@ -223,12 +223,13 @@ class Env1d(gym.Env):
         """
 
         scale = plan.shape[1] / frame_prev.image.shape[1]
+        frame_width = 15
 
-        scan_prev_resized = cv2.resize(frame_prev.image, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
-        scan_curr_resized = cv2.resize(frame_curr.image, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
+        scan_prev_resized = cv2.resize(frame_prev.image, None, fx=scale, fy=frame_width, interpolation=cv2.INTER_NEAREST)
+        scan_curr_resized = cv2.resize(frame_curr.image, None, fx=scale, fy=frame_width, interpolation=cv2.INTER_NEAREST)
 
-        kp1_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * scale, kp.size) for kp in frame_prev.keypoints]
-        kp2_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * scale, kp.size) for kp in frame_curr.keypoints]
+        kp1_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * frame_width, kp.size) for kp in frame_prev.keypoints]
+        kp2_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * frame_width, kp.size) for kp in frame_curr.keypoints]
 
         for kp in kp1_resized:
             cv2.circle(scan_prev_resized, tuple(np.round(kp.pt).astype(np.int)), 5, (255, 255, 255), 2)

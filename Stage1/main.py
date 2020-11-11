@@ -13,7 +13,7 @@ def main():
     detector = Detector()
     matcher = cv2.BFMatcher.create(normType=cv2.NORM_L2, crossCheck=True)
 
-    scan_size = 20
+    scan_size = 40
     frame_prev = Frame(np.zeros((1, scan_size, 3), dtype=np.uint8), list(), list())
 
     count = 0
@@ -23,7 +23,7 @@ def main():
 
         plan_with_scan = np.copy(plan)
 
-        scan = camera_1d(plan_with_scan, (230, 230), np.deg2rad(phi), np.pi / 6, 20, is_wall)
+        scan = camera_1d(plan_with_scan, (230, 230), np.deg2rad(phi), np.pi / 6, scan_size, is_wall)
         scan = np.expand_dims(scan, axis=0)
 
         kp, des = detector.detect_and_compute(scan)
@@ -85,4 +85,5 @@ def demo_drive(actions):
 
 
 if __name__ == "__main__":
-    example_work_with_env()
+    # example_work_with_env()
+    main()

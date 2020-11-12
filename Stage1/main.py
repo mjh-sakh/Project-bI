@@ -18,7 +18,6 @@ def main():
     frame_prev = Frame(np.zeros((1, scan_size, 3), dtype=np.uint8), list(), list())
 
     count = 0
-    phi = 0
 
     #only one turn
     while count < 360:
@@ -75,13 +74,8 @@ def example_work_with_env():
             scan = camera_1d(plan_with_scan, (x, y), theta, np.pi / 6, 20, is_wall)
         else:
             plan_with_scan = None
-
-<<<<<<< HEAD
-        time.sleep(.1)
-=======
         actions = demo_drive(actions)
         # actions = env1d.action_space.sample()  # random selection of speed and turn
->>>>>>> upstream/main
 
     env1d.close()
 

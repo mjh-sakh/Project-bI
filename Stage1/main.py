@@ -4,6 +4,7 @@ from perception.cameras import *
 from environment.env_1d import *
 from perception.detector import Detector
 from perception.frame import Frame
+from planning.movement import *
 import time
 
 
@@ -17,7 +18,8 @@ def main():
     frame_prev = Frame(np.zeros((1, scan_size, 3), dtype=np.uint8), list(), list())
 
     count = 0
-    while True:
+    phi = 0
+    while count < 360:
         phi = count % 360
         count += 1
 
@@ -42,6 +44,9 @@ def main():
             break
 
         frame_prev = frame_curr
+
+    env1d = Env1d(r'environment/demo_map_2.bmp')
+    move_to_wall(env1d)
 
 
 def example_work_with_env():
@@ -69,7 +74,6 @@ def example_work_with_env():
         else:
             plan_with_scan = None
 
-        # print(observation)
         time.sleep(.1)
 
     env1d.close()

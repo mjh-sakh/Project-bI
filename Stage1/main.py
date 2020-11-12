@@ -19,6 +19,8 @@ def main():
 
     count = 0
     phi = 0
+
+    #only one turn
     while count < 360:
         phi = count % 360
         count += 1
@@ -45,6 +47,7 @@ def main():
 
         frame_prev = frame_curr
 
+    #movement to the wall
     env1d = Env1d(r'environment/demo_map_2.bmp')
     move_to_wall(env1d)
 

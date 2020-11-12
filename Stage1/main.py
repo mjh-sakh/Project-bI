@@ -64,12 +64,11 @@ def example_work_with_env():
     for _ in range(100):
 
         env1d.render(plan_background=plan_with_scan)
+        time.sleep(.1)
 
-        # actions = env1d.action_space.sample()  # random selection of speed and turn
-        actions = demo_drive(actions)
         observation, reward, done, info = env1d.step(actions)
-
         x, y, theta, speed = observation
+
         print(x, y)
         if not is_wall(env1d.plan[int(x), int(y)]):
             plan_with_scan = env1d.plan.copy()
@@ -77,7 +76,12 @@ def example_work_with_env():
         else:
             plan_with_scan = None
 
+<<<<<<< HEAD
         time.sleep(.1)
+=======
+        actions = demo_drive(actions)
+        # actions = env1d.action_space.sample()  # random selection of speed and turn
+>>>>>>> upstream/main
 
     env1d.close()
 

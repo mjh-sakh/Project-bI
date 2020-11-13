@@ -58,7 +58,7 @@ class Env1d(gym.Env):
             0: speed, px/sec
             1: rotation speed, radians/sec 
         """
-        self.action_space = spaces.Box(low=np.array([0, -1]), high=np.array([100, 1]))
+        self.action_space = spaces.Box(low=np.array([-50, -1]), high=np.array([100, 1]))
 
         """
         Observation space = State:

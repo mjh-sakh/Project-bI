@@ -5,6 +5,7 @@ import gym
 import pyglet
 from gym import spaces
 from gym.envs.classic_control import rendering
+from perception.cameras import is_wall
 
 
 class ImageObject:
@@ -85,9 +86,10 @@ class Env1d(gym.Env):
         x += speed * np.cos(theta) * self.tau
         y += speed * np.sin(theta) * self.tau
 
-        # TODO: collision check comes here
-
-        self.state = [x, y, theta, speed]
+        if not is_wall(self.plan[int(x), int(y)]):
+            self.state = [x, y, theta, speed]
+        else:
+            self.state[3] = 0
 
         done = False  # never ending story :)
         reward = 0  # and fruitless one :(

@@ -1,6 +1,3 @@
-import numpy as np
-
-from perception.cameras import *
 from environment.env_1d import *
 from perception.detector import Detector
 from perception.frame import Frame
@@ -84,8 +81,8 @@ def demo_drive(actions):
     """
     slowly turns and accelerates drone to show it's movement on the map
     """
-    speed = actions[0] + np.random.rand()
-    turn = np.pi / 60
+    speed = actions[0] + 1
+    turn = .1
     return [speed, turn]
 
 

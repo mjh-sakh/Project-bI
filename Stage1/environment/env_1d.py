@@ -88,6 +88,8 @@ class Env1d(gym.Env):
 
         if not is_wall(self.plan[int(x), int(y)]):
             self.state = [x, y, theta, speed]
+        else:
+            self.state[3] = 0
 
         done = False  # never ending story :)
         reward = 0  # and fruitless one :(

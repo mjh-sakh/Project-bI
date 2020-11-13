@@ -56,9 +56,9 @@ class Env1d(gym.Env):
         """
         Actions space:
             0: speed, px/sec
-            1: turn, radians 
+            1: rotation speed, radians/sec 
         """
-        self.action_space = spaces.Box(low=np.array([0, -2 * np.pi]), high=np.array([100, 2 * np.pi]))
+        self.action_space = spaces.Box(low=np.array([-50, -1]), high=np.array([100, 1]))
 
         """
         Observation space = State:
@@ -78,9 +78,9 @@ class Env1d(gym.Env):
         err_msg = "%r (%s) invalid" % (action, type(action))
         assert self.action_space.contains(action), err_msg
 
-        speed, turn = action
+        speed, turn_speed = action
         x, y, theta, _ = self.state
-        theta = (theta + turn) % (2 * np.pi)
+        theta = (theta + turn_speed * self.tau) % (2 * np.pi)
 
         x += speed * np.cos(theta) * self.tau
         y += speed * np.sin(theta) * self.tau

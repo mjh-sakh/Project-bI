@@ -4,6 +4,7 @@ from perception.cameras import *
 from environment.env_1d import *
 from perception.detector import Detector
 from perception.frame import Frame
+from planning.movement import *
 import time
 
 
@@ -17,7 +18,9 @@ def main():
     frame_prev = Frame(np.zeros((1, scan_size, 3), dtype=np.uint8), list(), list())
 
     count = 0
-    while True:
+
+    #only one turn
+    while count < 360:
         phi = count % 360
         count += 1
 
@@ -43,6 +46,10 @@ def main():
 
         frame_prev = frame_curr
 
+    #movement to the wall
+    env1d = Env1d(r'environment/demo_map_2.bmp')
+    move_to_wall(env1d)
+
 
 def example_work_with_env():
     """
@@ -67,7 +74,6 @@ def example_work_with_env():
             scan = camera_1d(plan_with_scan, (x, y), theta, np.pi / 6, 20, is_wall)
         else:
             plan_with_scan = None
-
         actions = demo_drive(actions)
         # actions = env1d.action_space.sample()  # random selection of speed and turn
 

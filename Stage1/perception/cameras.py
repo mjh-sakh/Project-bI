@@ -1,4 +1,5 @@
 from environment.env_1d import *
+from functools import reduce
 
 
 def is_wall(pixel: np.array):
@@ -15,18 +16,23 @@ def is_wall(pixel: np.array):
     return True
 
 
-def cast_ray(plan: np.array, center: (float, float), angle: float, condition, display=False) -> np.array:
+def cast_ray(plan: np.array, center: (float, float), angle: float, condition, display=False) -> (int, int):
     """
     Casts a ray on *plan* from observer *center* point in direction defined by *angle*.
-    Returns first pixel that matches provided *condition*.
+    Returns coordinates of first pixel that matches provided *condition*.
     """
-    x, y = center
-    while not condition(plan[int(x), int(y)]):
+    x_start, y_start = center
+    max_distance = np.sqrt(plan.shape[0]**2 + plan.shape[1]**2)
+    x_end = x_start + max_distance * np.cos(angle)
+    y_end = y_start + max_distance * np.sin(angle)
+    ray = bresenham(int(x_start), int(y_start), int(x_end), int(y_end))
+    for point in ray:
+        x, y = point
+        if condition(plan[x, y]):
+            break
         if display:
-            plan[int(x), int(y)] = [90, 90, 0]
-        x += np.cos(angle)
-        y += np.sin(angle)
-    return plan[int(x), int(y)]
+            plan[x, y] = [90, 90, 0]
+    return x, y
 
 
 def camera_1d(plan: np.array, center: (float, float), direction: float, view_angle: float, resolution: int, condition):
@@ -41,7 +47,9 @@ def camera_1d(plan: np.array, center: (float, float), direction: float, view_ang
         # display = True if any([i == 0, i == int(resolution/2), i == resolution - 1]) else False
         display = True
         ray_i_angle = direction - view_angle * (i / resolution - 0.5)
-        scan.append(cast_ray(plan, center, ray_i_angle, condition, display))
+        wall_pixel_coordinates = cast_ray(plan, center, ray_i_angle, condition, display)
+        wall_pixel = plan[wall_pixel_coordinates]
+        scan.append(wall_pixel)
     return np.array(scan)
 
 

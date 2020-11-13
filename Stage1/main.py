@@ -45,7 +45,9 @@ def main():
 
     #movement to the wall
     env1d = Env1d(r'environment/demo_map_2.bmp')
-    move_to_wall(env1d)
+    env1d.reset()
+    wall_to_wall_movement(env1d)
+    env1d.close()
 
 
 def example_work_with_env():

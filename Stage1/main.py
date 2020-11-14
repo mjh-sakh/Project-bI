@@ -6,7 +6,7 @@ import time
 
 
 def main():
-    env2d = Env1d(r'environment/demo_map_2.bmp')
+    env2d = Env2D(r'environment/demo_map_2.bmp')
     env2d.reset()
     env2d.state[2] = np.pi / 2
 

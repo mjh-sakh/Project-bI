@@ -52,7 +52,7 @@ def example_work_with_env():
     """
     Just an example of how to work with OpenGym environment.
     """
-    env1d = Env1d(r'environment/demo_map_2.bmp')
+    env1d = Env2D(r'environment/demo_map_2.bmp')
     env1d.reset()
     actions = [0, 0]
     plan_with_scan = None

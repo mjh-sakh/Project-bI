@@ -1,4 +1,4 @@
-from environment.enrvironment2d import *
+from environment.env_1d import *
 from perception.detector import Detector
 from perception.frame import Frame
 from planning.movement import *

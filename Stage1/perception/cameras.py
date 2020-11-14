@@ -1,4 +1,4 @@
-from environment.enrvironment2d import *
+from environment.env_1d import *
 from functools import reduce
 
 

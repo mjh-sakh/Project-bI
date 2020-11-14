@@ -6,24 +6,26 @@ import time
 
 
 def main():
-    plan = Env1d.load_plan(r'environment/demo_map_2.bmp')
+    env2d = Env1d(r'environment/demo_map_2.bmp')
+    env2d.reset()
+    env2d.state[2] = np.pi / 2
 
     detector = Detector()
     matcher = cv2.BFMatcher.create(normType=cv2.NORM_L2, crossCheck=True)
 
-    scan_size = 40
+    scan_size = 20
     frame_prev = Frame(np.zeros((1, scan_size, 3), dtype=np.uint8), list(), list())
 
-    count = 0
+    actions = [0, .05]
 
     #only one turn
-    while count < 360:
-        phi = count % 360
-        count += 1
+    while True:
+        plan_with_scan = np.copy(env2d.plan)
 
-        plan_with_scan = np.copy(plan)
+        observation, _, _, _ = env2d.step(actions)
+        x, y, theta, _ = observation
 
-        scan = camera_1d(plan_with_scan, (230, 230), np.deg2rad(phi), np.pi / 6, scan_size, is_wall)
+        scan = camera_1d(plan_with_scan, (x, y), theta, np.pi / 6, scan_size, is_wall)
         scan = np.expand_dims(scan, axis=0)
 
         kp, des = detector.detect_and_compute(scan)
@@ -33,21 +35,17 @@ def main():
         if frame_curr.descriptors and frame_prev.descriptors:
             matches = matcher.match(np.array(frame_prev.descriptors), np.array(frame_curr.descriptors))
 
-        image_output = Env1d.draw_plan_and_frames(plan_with_scan, frame_prev, frame_curr, matches)
-        
-        cv2.imshow('map', image_output)
-        k = cv2.waitKey(25)
-        # Press 'Esc' for exit
-        if k == 27:
+        image_output = env2d.draw_plan_and_frames(plan_with_scan, frame_prev, frame_curr, matches)
+        frame_prev = frame_curr
+        env2d.render(plan_background=image_output)
+
+        if theta > 2 * np.pi - 0.1:
             break
 
-        frame_prev = frame_curr
-
     #movement to the wall
-    env1d = Env1d(r'environment/demo_map_2.bmp')
-    env1d.reset()
-    wall_to_wall_movement(env1d)
-    env1d.close()
+
+    wall_to_wall_movement(env2d)
+    env2d.close()
 
 
 def example_work_with_env():

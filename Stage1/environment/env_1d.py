@@ -44,9 +44,13 @@ class NPImage(rendering.Geom):
         return ImageObject(encoded_image.tobytes())
 
 
-class Env1d(gym.Env):
+class Env2D(gym.Env):
     """
-    Env1d will be an interface for other areas to operate in environment.
+    Env2D is a container for drone navigation on given plan.
+    Implemented feature:
+        step based on provided actions [speed, rotation speed]
+        render
+        basic collision detection (drone will not drive into wall)
     """
 
     def __init__(self, plan_file_path: str):

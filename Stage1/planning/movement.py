@@ -1,5 +1,5 @@
-from perception.cameras import *
-from environment.env_1d import *
+from perception.sensors import *
+from environment.enrvironment2d import *
 import time
 
 

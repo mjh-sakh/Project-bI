@@ -247,5 +247,6 @@ class Env1d(gym.Env):
             p2_coord = tuple(np.round(p2 + [0, scan_prev_resized.shape[0]]).astype(np.int))
             cv2.line(scans, p1_coord, p2_coord, (255, 255, 255), 2)
 
-        output = np.vstack([plan, scans])
+        output = plan.copy()
+        output[- frame_width * 2:, :, :] = scans
         return output

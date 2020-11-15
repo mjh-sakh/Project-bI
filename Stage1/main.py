@@ -1,8 +1,12 @@
-from environment.env_1d import *
+from environment.environment2d import Env2D
 from perception.detector import Detector
 from perception.frame import Frame
-from planning.movement import *
-import time
+from planning.movement import wall_to_wall_movement
+from perception.sensors import camera_1d
+from perception.sensors import is_wall
+
+import numpy as np
+import cv2
 
 
 def main():

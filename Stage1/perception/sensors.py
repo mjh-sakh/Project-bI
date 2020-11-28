@@ -1,5 +1,4 @@
-from environment.env_1d import *
-from functools import reduce
+import numpy as np
 
 
 def is_wall(pixel: np.array):

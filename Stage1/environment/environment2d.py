@@ -5,7 +5,7 @@ import gym
 import pyglet
 from gym import spaces
 from gym.envs.classic_control import rendering
-from perception.cameras import is_wall
+from perception.sensors import is_wall
 
 
 class ImageObject:

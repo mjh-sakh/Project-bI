@@ -1,6 +1,8 @@
-from perception.cameras import *
-from environment.env_1d import *
+from perception.sensors import camera_1d
+from perception.sensors import is_wall
 import time
+
+import numpy as np
 
 
 def move_to_wall(env1d):

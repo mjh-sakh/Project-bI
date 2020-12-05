@@ -136,15 +136,15 @@ class Env2D(gym.Env):
         self.viewer.add_geom(drone)
 
     def render(self, mode='human', plan_background=None):
+        if self.state is None:
+            assert "Environment should be reset before first render."
+
         if plan_background is not None:
             new_plan = ImageAsArray(self.plan_file_path, plan_background)
             self.viewer.geoms[0] = new_plan
         else:
             old_plan = ImageAsArray(self.plan_file_path, self.plan)
             self.viewer.geoms[0] = old_plan
-
-        if self.state is None:
-            return None
 
         x, y, theta, _ = self.state
         self.drone_transform.set_translation(y, self.screen_width - x)  # TODO: requires proper transformation

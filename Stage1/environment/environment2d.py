@@ -8,11 +8,12 @@ from gym.envs.classic_control import rendering
 from perception.sensors import is_wall
 
 
-class ImageObject:
+class MockImageObject:
     """
     Image Object that holds image information and provides it on read method.
     It's required to trick pyglet.image.load.
     """
+
     def __init__(self, _bytes):
         self.bytes = _bytes
 
@@ -20,28 +21,28 @@ class ImageObject:
         return self.bytes
 
 
-class NPImage(rendering.Geom):
+class ImageAsArray(rendering.Geom):
     """
     Alternative Image class for OpenAI Gym.
     It creates image from provided numpy array.
     """
-    def __init__(self, fname, array_img, width, height):
+
+    def __init__(self, fname, array_img):
         rendering.Geom.__init__(self)
         self.extension = os.path.splitext(fname)[1].lower()
         self.set_color(1.0, 1.0, 1.0)
-        self.width = width
-        self.height = height
+        self.width, self.height = array_img.shape[:2]
         file = self.convert_array_to_bytes(array_img)
         img = pyglet.image.load(fname, file=file)
         self.img = img
         self.flip = False
 
     def render1(self):
-        self.img.blit(0, 0, width=self.width, height=self.height)
+        self.img.blit(0, 0)
 
     def convert_array_to_bytes(self, array: np.array):
         success, encoded_image = cv2.imencode(self.extension, array)
-        return ImageObject(encoded_image.tobytes())
+        return MockImageObject(encoded_image.tobytes())
 
 
 class Env2D(gym.Env):
@@ -53,8 +54,9 @@ class Env2D(gym.Env):
         basic collision detection (drone will not drive into wall)
     """
 
-    def __init__(self, plan_file_path: str):
+    def __init__(self, plan_file_path: str, **kwargs):
         self.plan_file_path = plan_file_path
+        self.kwargs = kwargs
         self.plan_type = None  # image or text
         self.plan = self.load_plan()
         self.tau = 0.2  # seconds between state update
@@ -79,6 +81,9 @@ class Env2D(gym.Env):
         self.drone_coordinates = None
         self.state = None
         self.viewer = None
+        self.screen_width = kwargs.get("screen_width", 500)
+        self.screen_height = kwargs.get("screen_height", 500)
+        self.set_up_window()
 
     def step(self, action):
         err_msg = "%r (%s) invalid" % (action, type(action))
@@ -106,33 +111,44 @@ class Env2D(gym.Env):
         self.state = [self.drone_coordinates[0], self.drone_coordinates[1], np.random.rand() * 2 * np.pi, 0]
         return np.array(self.state)
 
-    def render(self, mode='human', plan_background=None):
-        screen_width = self.plan.shape[0]
-        screen_height = self.plan.shape[1]
+    def set_up_window(self):
+        """
+        Fills self.viewer with required minimum objects:
+        - pyglet.window via gym Viewer as a container
+        - adds drone geometry into Viewer container
 
-        if self.viewer is None:
-            from gym.envs.classic_control import rendering
-            self.viewer = rendering.Viewer(screen_width, screen_height)
-            plan = NPImage(self.plan_file_path, self.plan, screen_width, screen_height)
+        Note: order is important
+        :return:
+        """
+        self.viewer = rendering.Viewer(self.screen_width, self.screen_height)
+
+        if self.plan_type == "image":
+            plan = ImageAsArray(self.plan_file_path, self.plan)
             self.viewer.add_geom(plan)
-            drone = rendering.FilledPolygon([(-20, -5), (-20, 5), (0, 0)])
-            self.dronetrans = rendering.Transform()
-            drone.add_attr(self.dronetrans)
-            self.viewer.add_geom(drone)
+        elif self.plan_type == "text":
+            assert "Not implemented"
+        else:
+            assert "Rendering of this type of plan is not implemented."
 
+        drone = rendering.FilledPolygon([(-20, -5), (-20, 5), (0, 0)])
+        self.drone_transform = rendering.Transform()
+        drone.add_attr(self.drone_transform)
+        self.viewer.add_geom(drone)
+
+    def render(self, mode='human', plan_background=None):
         if plan_background is not None:
-            new_plan = NPImage(self.plan_file_path, plan_background, screen_width, screen_height)
+            new_plan = ImageAsArray(self.plan_file_path, plan_background)
             self.viewer.geoms[0] = new_plan
         else:
-            old_plan = NPImage(self.plan_file_path, self.plan, screen_width, screen_height)
+            old_plan = ImageAsArray(self.plan_file_path, self.plan)
             self.viewer.geoms[0] = old_plan
 
         if self.state is None:
             return None
 
         x, y, theta, _ = self.state
-        self.dronetrans.set_translation(y, screen_width - x)
-        self.dronetrans.set_rotation(theta - np.pi / 2)
+        self.drone_transform.set_translation(y, self.screen_width - x)  # TODO: requires proper transformation
+        self.drone_transform.set_rotation(theta - np.pi / 2)
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
@@ -148,7 +164,8 @@ class Env2D(gym.Env):
         - from text (txt, csv)
         Read plan *file* in 'jpg' format and returns plan array.
         """
-        assert os.path.isfile(self.plan_file_path), f"No file '{self.plan_file_path}' exist to read. Please check file name and path."
+        assert os.path.isfile(
+            self.plan_file_path), f"No file '{self.plan_file_path}' exist to read. Please check file name and path."
         plan_extension = os.path.splitext(self.plan_file_path)[1].lower()
         if plan_extension in {".jpg", ".bmp"}:
             self.plan_type = "image"
@@ -173,8 +190,7 @@ class Env2D(gym.Env):
         """
         assert "Not implemented"
 
-    @staticmethod
-    def save_plan(plan: np.array, file: str):
+    def save_plan(self, plan: np.array, file: str):
         """
         Saves plan to file.
         """
@@ -191,56 +207,18 @@ class Env2D(gym.Env):
         cv2.destroyWindow(window_name)
         return key_pressed
 
-    def show_layers(self, *layers, **kwargs):
-        """
-        Takes *layers* (list of np.arrays) and shows them together until any button is hit.
-        Takes *layers* and shows them together until any button is hit.
-        *layers* is list of tuples (img, placement_coordinates, anchor):
-            img is np.array with shape (x, y, 3)
-            placement_coordinates is where img should be inserted on top of base
-            anchor is optional, by default top left corner of img is placed at placement_coordinates,
-                so default value of anchor is [0, 0], provide different if some offset is needed
-                typical use is center point of img
-
-        Returns key code which was pressed when window closed.
-        """
-
-        def overlay_pic(pic, placement_coordinates, pic_anchor=[0, 0]):
-            pic_anchor = np.array(pic_anchor)
-            placement_coordinates = np.array(placement_coordinates)
-            top_left = placement_coordinates - pic_anchor
-            bottom_right = top_left + np.array(pic.shape[:2])
-            blend[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1]] = pic
-
-        blend = self.plan.copy()
-        for layer in layers:
-            if len(layer) == 3:
-                img, placement_coordinates, anchor = layer
-            else:
-                img, placement_coordinates = layer
-                anchor = [0, 0]
-
-            overlay_pic(img, placement_coordinates, anchor)
-
-        if 'window_name' in kwargs:
-            key_pressed = self.show_plan(blend, kwargs['window_name'])
-        else:
-            key_pressed = self.show_plan(blend)
-
-        return key_pressed
-
     def place_drone(self) -> (int, int):
         """
         Randomly places agent on map/plan at valid point.
         Returns coordinates.
         """
-        pixel = [0, 0, 0]
-        while sum(pixel) < 255 * 3:
+
+        while True:
             x = np.random.randint(0, self.plan.shape[0])
             y = np.random.randint(0, self.plan.shape[1])
             pixel = self.plan[x, y]
-        return x, y
-
+            if sum(pixel) == 255 * 3:
+                return x, y
 
     @staticmethod
     def draw_plan_and_frames(plan, frame_prev, frame_curr, matches, frame_width=15):
@@ -256,11 +234,15 @@ class Env2D(gym.Env):
 
         scale = plan.shape[1] / frame_prev.image.shape[1]
 
-        scan_prev_resized = cv2.resize(frame_prev.image, None, fx=scale, fy=frame_width, interpolation=cv2.INTER_NEAREST)
-        scan_curr_resized = cv2.resize(frame_curr.image, None, fx=scale, fy=frame_width, interpolation=cv2.INTER_NEAREST)
+        scan_prev_resized = cv2.resize(frame_prev.image, None, fx=scale, fy=frame_width,
+                                       interpolation=cv2.INTER_NEAREST)
+        scan_curr_resized = cv2.resize(frame_curr.image, None, fx=scale, fy=frame_width,
+                                       interpolation=cv2.INTER_NEAREST)
 
-        kp1_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * frame_width, kp.size) for kp in frame_prev.keypoints]
-        kp2_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * frame_width, kp.size) for kp in frame_curr.keypoints]
+        kp1_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * frame_width, kp.size) for kp in
+                       frame_prev.keypoints]
+        kp2_resized = [cv2.KeyPoint((kp.pt[0] + 0.5) * scale, 0.5 * frame_width, kp.size) for kp in
+                       frame_curr.keypoints]
 
         for kp in kp1_resized:
             cv2.circle(scan_prev_resized, tuple(np.round(kp.pt).astype(np.int)), 5, (255, 255, 255), 2)

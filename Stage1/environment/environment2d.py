@@ -3,6 +3,7 @@ import cv2
 import os
 import gym
 import pyglet
+import csv
 from gym import spaces
 from gym.envs.classic_control import rendering
 from perception.sensors import is_wall
@@ -188,7 +189,16 @@ class Env2D(gym.Env):
         Read plan file in 'jpg' format and returns plan array of pairs of vertices.
         :return:
         """
-        assert "Not implemented"
+
+        plan = []
+        with open(self.plan_file_path, 'r', encoding="UTF-8") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for line in csv_reader:
+                points = [int(x) for x in line]
+                assert len(points) == 4, f"Wrong plan file format, should have 4 points per row, got {len(points)}"
+                plan.append([points[:2], points[-2:]])
+
+        return np.array(plan)
 
     def save_plan(self, plan: np.array, file: str):
         """

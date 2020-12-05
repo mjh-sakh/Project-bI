@@ -7,6 +7,7 @@ import csv
 from gym import spaces
 from gym.envs.classic_control import rendering
 from perception.sensors import is_wall
+from common import geometry
 
 
 class MockImageObject:
@@ -97,7 +98,7 @@ class Env2D(gym.Env):
         x += speed * np.cos(theta) * self.tau
         y += speed * np.sin(theta) * self.tau
 
-        if not is_wall(self.plan[int(x), int(y)]):
+        if not self.check_collision(x, y):
             self.state = [x, y, theta, speed]
         else:
             self.state[3] = 0
@@ -106,6 +107,21 @@ class Env2D(gym.Env):
         reward = 0  # and fruitless one :(
 
         return np.array(self.state), reward, done, {}
+
+    def check_collision(self, x, y):
+        """
+        checks that
+        :param x: current x coordinate of drone
+        :param y: current y coordinate of drone
+        :return: True if about to hit wall, False if not
+        """
+        if self.plan_type == "image":
+            return is_wall(self.plan[int(x), int(y)])
+        elif self.plan_type == "text":
+            return not geometry.check_point_in_polygon((x, y), self.plan[:, 0, :])  # mind not
+
+        assert f"Collision check for '{self.plan_type}' type of plan is not implemented."
+
 
     def reset(self):
         self.drone_coordinates = self.place_drone()
@@ -247,6 +263,12 @@ class Env2D(gym.Env):
                 y = np.random.randint(0, self.plan.shape[1])
                 pixel = self.plan[x, y]
                 if sum(pixel) == 255 * 3:
+                    return x, y
+        elif self.plan_type == "text":
+            while True:
+                x = np.random.randint(0, max(self.plan[:, 0, 0]))
+                y = np.random.randint(0, max(self.plan[:, 0, 1]))
+                if geometry.check_point_in_polygon((x, y), self.plan[:, 0, :]):
                     return x, y
         else:
             assert f"Drone placement is not implemented for '{self.plan_type}' plan type"

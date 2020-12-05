@@ -55,7 +55,8 @@ class Env2D(gym.Env):
 
     def __init__(self, plan_file_path: str):
         self.plan_file_path = plan_file_path
-        self.plan = self.load_plan(plan_file_path)
+        self.plan_type = None
+        self.plan = self.load_plan()
         self.tau = 0.2  # seconds between state update
 
         """
@@ -140,13 +141,37 @@ class Env2D(gym.Env):
             self.viewer.close()
             self.viewer = None
 
-    @staticmethod
-    def load_plan(file: str) -> np.array:
+    def load_plan(self) -> np.array:
         """
+        Checks plans extension and initiates right load process:
+        - from image (jpg, bmp)
+        - from text (txt, csv)
         Read plan *file* in 'jpg' format and returns plan array.
         """
-        assert os.path.isfile(file), f"No file '{file}' exist to read. Please check file name and path."
-        return cv2.imread(file)
+        assert os.path.isfile(self.plan_file_path), f"No file '{self.plan_file_path}' exist to read. Please check file name and path."
+        plan_extension = os.path.splitext(self.plan_file_path)[1].lower()
+        if plan_extension in {".jpg", ".bmp"}:
+            self.plan_type = "image"
+            return self.load_plan_from_image()
+        if plan_extension in {".txt", ".csv"}:
+            self.plan_type = "text"
+            return self.load_plan_from_text()
+
+        assert f"Unsupported plan file extension - {plan_extension}"
+
+    def load_plan_from_image(self) -> np.array:
+        """
+        Read plan file in 'jpg' format and returns plan array.
+        :return: plan array
+        """
+        return cv2.imread(self.plan_file_path)
+
+    def load_plan_from_text(self) -> np.array:
+        """
+        Read plan file in 'jpg' format and returns plan array of pairs of vertices.
+        :return:
+        """
+        assert "Not implemented"
 
     @staticmethod
     def save_plan(plan: np.array, file: str):

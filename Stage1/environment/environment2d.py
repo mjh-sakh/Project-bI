@@ -55,7 +55,7 @@ class Env2D(gym.Env):
 
     def __init__(self, plan_file_path: str):
         self.plan_file_path = plan_file_path
-        self.plan_type = None
+        self.plan_type = None  # image or text
         self.plan = self.load_plan()
         self.tau = 0.2  # seconds between state update
 

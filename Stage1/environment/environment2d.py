@@ -127,7 +127,10 @@ class Env2D(gym.Env):
             plan = ImageAsArray(self.plan_file_path, self.plan)
             self.viewer.add_geom(plan)
         elif self.plan_type == "text":
-            assert "Not implemented"
+            self.plan_trasnform = rendering.Transform()
+            for edge in self.generate_edges_from_vertices(self.plan):
+                edge.add_attr(self.plan_trasnform)
+                self.viewer.add_geom(edge)
         else:
             assert "Rendering of this type of plan is not implemented."
 
@@ -135,6 +138,21 @@ class Env2D(gym.Env):
         self.drone_transform = rendering.Transform()
         drone.add_attr(self.drone_transform)
         self.viewer.add_geom(drone)
+
+    def generate_edges_from_vertices(self, vertices: np.array, linewidth=2, color=(0, 0, 0)):
+        """
+        Takes list of vertices of shape (number of vertices, 2, 2).
+        :param vertices: np.array of shape (len, 2, 2)
+        :return: list of OpenAI Gym rendering Line
+        """
+        edges = []
+        for vertices_pair in vertices:
+            edge = rendering.Line(vertices_pair[0], vertices_pair[1])
+            edge.attrs[-1] = rendering.LineWidth(linewidth)  # Line class adds LineWidth attr at init, overriding it
+            edge.set_color(*color)
+            edges.append(edge)
+
+        return edges
 
     def render(self, mode='human', plan_background=None):
         if self.state is None:

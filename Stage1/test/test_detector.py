@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from time import sleep
 
 from perception.detector import Detector
 from environment.environment2d import Env2D
@@ -55,6 +56,14 @@ class TestEnvironment(unittest.TestCase):
         self.assertEqual(env.plan_file_path, self.text_test_map_path)
         self.assertEqual(env.plan_type, "text")
         self.assertEqual(env.plan.shape, (4, 2, 2))  # 4 lines, 2 points, 2 coordinates
+
+        self.assertEqual(len(env.viewer.geoms), 5)  # 4 edges + 1 drone
+
+        env.drone_transform.set_translation(250, 250)
+        # env.plan_trasnform.set_translation(200, 200)
+        env.plan_trasnform.set_rotation(0.1)
+        env.viewer.render(return_rgb_array=False)
+        sleep(2)
 
 
 if __name__ == '__main__':

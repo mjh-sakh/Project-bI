@@ -213,12 +213,15 @@ class Env2D(gym.Env):
         Returns coordinates.
         """
 
-        while True:
-            x = np.random.randint(0, self.plan.shape[0])
-            y = np.random.randint(0, self.plan.shape[1])
-            pixel = self.plan[x, y]
-            if sum(pixel) == 255 * 3:
-                return x, y
+        if self.plan_type == "image":
+            while True:
+                x = np.random.randint(0, self.plan.shape[0])
+                y = np.random.randint(0, self.plan.shape[1])
+                pixel = self.plan[x, y]
+                if sum(pixel) == 255 * 3:
+                    return x, y
+        else:
+            assert f"Drone placement is not implemented for '{self.plan_type}' plan type"
 
     @staticmethod
     def draw_plan_and_frames(plan, frame_prev, frame_curr, matches, frame_width=15):

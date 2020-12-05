@@ -15,7 +15,7 @@ def check_point_in_polygon(point, vertices) -> bool:
     :return: True if inside, False if outside
     """
 
-    _vertices = np.array(vertices)
+    _vertices = np.array(vertices).astype(np.float)
     _vertices -= np.array(point)
     crossings = 0
 

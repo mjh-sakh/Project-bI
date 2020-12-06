@@ -61,6 +61,11 @@ class Env2D(gym.Env):
         self.kwargs = kwargs
         self.plan_type = None  # image or text
         self.plan = self.load_plan()
+        if self.plan_type == "image":
+            self.plan_shape = self.plan.shape
+        elif self.plan_type == "text":
+            self.plan_shape = max(self.plan[:, 0, 0]), max(self.plan[:, 0, 1])
+
         self.tau = 0.2  # seconds between state update
 
         """
@@ -135,20 +140,30 @@ class Env2D(gym.Env):
         - adds drone geometry into Viewer container
 
         Note: order is important
-        :return:
+        Current order is following:
+        - plan (one ImageAsArray or several Line classes)
+        - background [-2]
+        - drone [-1]
         """
         self.viewer = rendering.Viewer(self.screen_width, self.screen_height)
 
+        self.plan_trasnform = rendering.Transform()
         if self.plan_type == "image":
-            plan = ImageAsArray(self.plan_file_path, self.plan)
+            plan = ImageAsArray(self.plan_file_path, self.plan.swapaxes(0, 1)[::-1, :, :])
+            plan.add_attr(self.plan_trasnform)
             self.viewer.add_geom(plan)
         elif self.plan_type == "text":
-            self.plan_trasnform = rendering.Transform()
             for edge in self.generate_edges_from_vertices(self.plan):
                 edge.add_attr(self.plan_trasnform)
                 self.viewer.add_geom(edge)
         else:
             assert "Rendering of this type of plan is not implemented."
+
+        # adding element right on top of plan so it can be shown on top of plan and hide it
+        background = rendering.Point()
+        background.add_attr(self.plan_trasnform)
+        background.set_color(255, 255, 255)
+        self.viewer.add_geom(background)
 
         drone = rendering.FilledPolygon([(-20, -5), (-20, 5), (0, 0)])
         self.drone_transform = rendering.Transform()
@@ -175,15 +190,18 @@ class Env2D(gym.Env):
             assert "Environment should be reset before first render."
 
         if plan_background is not None:
-            new_plan = ImageAsArray(self.plan_file_path, plan_background)
-            self.viewer.geoms[0] = new_plan
+            background = ImageAsArray(self.plan_file_path, plan_background.swapaxes(0, 1)[::-1, :, :])
+            background.add_attr(self.plan_trasnform)
+            self.viewer.geoms[-2] = background
         else:
-            old_plan = ImageAsArray(self.plan_file_path, self.plan)
-            self.viewer.geoms[0] = old_plan
+            background = rendering.Point()
+            background.add_attr(self.plan_trasnform)
+            background.set_color(255, 255, 255)
+            self.viewer.geoms[-2] = background
 
         x, y, theta, _ = self.state
-        self.drone_transform.set_translation(y, self.screen_width - x)  # TODO: requires proper transformation
-        self.drone_transform.set_rotation(theta - np.pi / 2)
+        self.drone_transform.set_translation(x, y)  # TODO: requires proper transformation
+        self.drone_transform.set_rotation(theta)
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
@@ -266,8 +284,8 @@ class Env2D(gym.Env):
                     return x, y
         elif self.plan_type == "text":
             while True:
-                x = np.random.randint(0, max(self.plan[:, 0, 0]))
-                y = np.random.randint(0, max(self.plan[:, 0, 1]))
+                x = np.random.randint(0, self.plan_shape[0])
+                y = np.random.randint(0, self.plan_shape[1])
                 if geometry.check_point_in_polygon((x, y), self.plan[:, 0, :]):
                     return x, y
         else:

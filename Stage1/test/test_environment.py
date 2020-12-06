@@ -5,7 +5,7 @@ from time import sleep
 from environment.environment2d import Env2D
 
 
-class TestEnvironment(unittest.TestCase):
+class TestEnvironmentInit(unittest.TestCase):
     """
     Tests for Env2D
     """
@@ -46,6 +46,27 @@ class TestEnvironment(unittest.TestCase):
             # # env.plan_trasnform.set_rotation(0.1)
             # env.viewer.render(return_rgb_array=False)
             # sleep(.5)
+
+class TestEnvironmentRender(unittest.TestCase):
+    """
+    Tests for Env2D rendering
+    """
+
+    def setUp(self) -> None:
+        # 20x20 px, outer pixel frame is pure green, next is black, rest is white
+        self.image_test_map_path = "test_map.bmp"
+        self.text_test_map_path = r"../environment/demo_map_4.csv"
+
+    def tearDown(self) -> None:
+        pass
+
+    def test_Env2D_render_text_plan(self):
+        env = Env2D(self.text_test_map_path, screen_width=500, screen_height=500)
+
+        for _ in range(10):
+            env.reset()
+            env.render()
+            sleep(.1)
 
 
 if __name__ == '__main__':

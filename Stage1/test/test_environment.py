@@ -61,7 +61,7 @@ class TestEnvironmentRender(unittest.TestCase):
         pass
 
     def test_Env2D_render_text_plan(self):
-        env = Env2D(self.text_test_map_path, screen_width=500, screen_height=500)
+        env = Env2D(self.text_test_map_path)
 
         for _ in range(10):
             env.reset()

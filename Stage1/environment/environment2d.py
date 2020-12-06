@@ -88,8 +88,8 @@ class Env2D(gym.Env):
         self.drone_coordinates = None
         self.state = None
         self.viewer = None
-        self.screen_width = kwargs.get("screen_width", 500)
-        self.screen_height = kwargs.get("screen_height", 500)
+        self.screen_width = kwargs.get("screen_width", min(self.plan_shape[0], 800))
+        self.screen_height = kwargs.get("screen_height", min(self.plan_shape[1], 600))
         self.set_up_window()
 
     def step(self, action):

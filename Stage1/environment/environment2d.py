@@ -133,7 +133,7 @@ class Env2D(gym.Env):
         self.state = [self.drone_coordinates[0], self.drone_coordinates[1], np.random.rand() * 2 * np.pi, 0]
         return np.array(self.state)
 
-    def set_up_window(self):
+    def set_up_window(self) -> None:
         """
         Fills self.viewer with required minimum objects:
         - pyglet.window via gym Viewer as a container
@@ -186,8 +186,7 @@ class Env2D(gym.Env):
         return edges
 
     def render(self, mode='human', plan_background=None):
-        if self.state is None:
-            assert "Environment should be reset before first render."
+        assert self.state, "Environment should be reset before first render."
 
         if plan_background is not None:
             background = ImageAsArray(self.plan_file_path, plan_background.swapaxes(0, 1)[::-1, :, :])
@@ -200,7 +199,7 @@ class Env2D(gym.Env):
             self.viewer.geoms[-2] = background
 
         x, y, theta, _ = self.state
-        self.drone_transform.set_translation(x, y)  # TODO: requires proper transformation
+        self.drone_transform.set_translation(x, y)
         self.drone_transform.set_rotation(theta)
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')

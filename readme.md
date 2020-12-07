@@ -6,11 +6,7 @@ Education project aimed to build skills necessary to develop complex solution in
 ## Coders
 
 - [x] Andrey (mjh-sakh)
-- [x] Vladimir (YasnoSolnishko)
-- [x] Alexadner (a1b23)
 - [x] Anton (gorodecki)
-- [x] Sairan (Sairan-ds)
-- [x] Oleg (olegboev)
 - [x] Maria (MariaMosina)
 - [x] Pavel (bukpal)
 
@@ -18,7 +14,7 @@ Education project aimed to build skills necessary to develop complex solution in
 
 - [x] Dima (tgenman)
 - [x] Andrey (daerhiel)
-
+- [x] Oleg (olegboev)
 
 # Key Goals:
 - learn Kanban or other way to coordinate team

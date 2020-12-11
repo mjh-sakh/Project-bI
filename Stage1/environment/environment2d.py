@@ -60,9 +60,9 @@ class Env2D(gym.Env):
         self.plan_file_path = plan_file_path
         self.kwargs = kwargs
         self.plan_type = None  # image or text
-        self.plan = self.load_plan()
+        self.plan = self._load_plan()
         if self.plan_type == "image":
-            self.plan_shape = self.plan.shape
+            self.plan_shape = self.plan.shape[:2]
         elif self.plan_type == "text":
             self.plan_shape = max(self.plan[:, 0, 0]), max(self.plan[:, 0, 1])
 
@@ -87,6 +87,7 @@ class Env2D(gym.Env):
 
         self.drone_coordinates = None
         self.state = None
+
         self.viewer = None
         self.screen_width = kwargs.get("screen_width", min(self.plan_shape[0], 800))
         self.screen_height = kwargs.get("screen_height", min(self.plan_shape[1], 600))
@@ -103,7 +104,7 @@ class Env2D(gym.Env):
         x += speed * np.cos(theta) * self.tau
         y += speed * np.sin(theta) * self.tau
 
-        if not self.check_collision(x, y):
+        if not self._check_collision(x, y):
             self.state = [x, y, theta, speed]
         else:
             self.state[3] = 0
@@ -113,7 +114,7 @@ class Env2D(gym.Env):
 
         return np.array(self.state), reward, done, {}
 
-    def check_collision(self, x, y):
+    def _check_collision(self, x, y):
         """
         checks that
         :param x: current x coordinate of drone
@@ -127,13 +128,12 @@ class Env2D(gym.Env):
 
         assert f"Collision check for '{self.plan_type}' type of plan is not implemented."
 
-
     def reset(self):
-        self.drone_coordinates = self.place_drone()
+        self.drone_coordinates = self._place_drone()
         self.state = [self.drone_coordinates[0], self.drone_coordinates[1], np.random.rand() * 2 * np.pi, 0]
         return np.array(self.state)
 
-    def set_up_window(self) -> None:
+    def _set_up_window(self) -> None:
         """
         Fills self.viewer with required minimum objects:
         - pyglet.window via gym Viewer as a container
@@ -153,7 +153,7 @@ class Env2D(gym.Env):
             plan.add_attr(self.plan_trasnform)
             self.viewer.add_geom(plan)
         elif self.plan_type == "text":
-            for edge in self.generate_edges_from_vertices(self.plan):
+            for edge in self._generate_edges_from_vertices(self.plan):
                 edge.add_attr(self.plan_trasnform)
                 self.viewer.add_geom(edge)
         else:
@@ -170,7 +170,7 @@ class Env2D(gym.Env):
         drone.add_attr(self.drone_transform)
         self.viewer.add_geom(drone)
 
-    def generate_edges_from_vertices(self, vertices: np.array, linewidth=2, color=(0, 0, 0)):
+    def _generate_edges_from_vertices(self, vertices: np.array, linewidth=2, color=(0, 0, 0)):
         """
         Takes list of vertices of shape (number of vertices, 2, 2).
         :param vertices: np.array of shape (len, 2, 2)
@@ -209,7 +209,7 @@ class Env2D(gym.Env):
             self.viewer.close()
             self.viewer = None
 
-    def load_plan(self) -> np.array:
+    def _load_plan(self) -> np.array:
         """
         Checks plans extension and initiates right load process:
         - from image (jpg, bmp)
@@ -221,21 +221,21 @@ class Env2D(gym.Env):
         plan_extension = os.path.splitext(self.plan_file_path)[1].lower()
         if plan_extension in {".jpg", ".bmp"}:
             self.plan_type = "image"
-            return self.load_plan_from_image()
+            return self._load_plan_from_image()
         if plan_extension in {".txt", ".csv"}:
             self.plan_type = "text"
-            return self.load_plan_from_text()
+            return self._load_plan_from_text()
 
         assert f"Unsupported plan file extension - {plan_extension}"
 
-    def load_plan_from_image(self) -> np.array:
+    def _load_plan_from_image(self) -> np.array:
         """
         Read plan file in 'jpg' format and returns plan array.
         :return: plan array
         """
         return cv2.imread(self.plan_file_path)
 
-    def load_plan_from_text(self) -> np.array:
+    def _load_plan_from_text(self) -> np.array:
         """
         Read plan file in 'jpg' format and returns plan array of pairs of vertices.
         :return:
@@ -268,7 +268,7 @@ class Env2D(gym.Env):
         cv2.destroyWindow(window_name)
         return key_pressed
 
-    def place_drone(self) -> (int, int):
+    def _place_drone(self) -> (int, int):
         """
         Randomly places agent on map/plan at valid point.
         Returns coordinates.

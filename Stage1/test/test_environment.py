@@ -31,7 +31,7 @@ class TestEnvironmentInit(unittest.TestCase):
         self.assertEqual(env.plan_file_path, self.text_test_map_path)
         self.assertEqual(env.plan_type, "text")
         self.assertEqual(env.plan.shape, (3, 2, 2))  # 3 lines, 2 points, 2 coordinates
-        self.assertEqual(len(env.viewer.geoms), 4)  # 3 edges + 1 drone
+        self.assertEqual(len(env.viewer.geoms), 5)  # 3 edges + background object + 1 drone
 
     def test_Env2d_place_drone_for_text_plan(self):
         env = Env2D(self.text_test_map_path)
@@ -41,9 +41,6 @@ class TestEnvironmentInit(unittest.TestCase):
             x, y, theta, _ = env.state
             self.assertTrue(y > x)  # map is top left part of square divided by half diagonally
 
-            # env.drone_transform.set_translation(250 + x, 250 + y)
-            # env.plan_trasnform.set_translation(250, 250)
-            # # env.plan_trasnform.set_rotation(0.1)
             # env.viewer.render(return_rgb_array=False)
             # sleep(.5)
 
@@ -61,9 +58,17 @@ class TestEnvironmentRender(unittest.TestCase):
         pass
 
     def test_Env2D_render_text_plan(self):
-        env = Env2D(self.text_test_map_path)
+        env = Env2D(self.text_test_map_path, screen_height=600, screen_width=800)
 
+        #visual test
         for _ in range(10):
+            env.reset()
+            env.render()
+            sleep(.1)
+
+        # visual test for scaling
+        for i in range(10):
+            env.rescale_view(1 - i/50)
             env.reset()
             env.render()
             sleep(.1)

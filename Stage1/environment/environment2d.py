@@ -91,7 +91,8 @@ class Env2D(gym.Env):
         self.viewer = None
         self.screen_width = kwargs.get("screen_width", min(self.plan_shape[0], 800))
         self.screen_height = kwargs.get("screen_height", min(self.plan_shape[1], 600))
-        self.set_up_window()
+        self.view_scale = 1
+        self._set_up_window()
 
     def step(self, action):
         err_msg = "%r (%s) invalid" % (action, type(action))
@@ -146,22 +147,23 @@ class Env2D(gym.Env):
         - drone [-1]
         """
         self.viewer = rendering.Viewer(self.screen_width, self.screen_height)
+        self.rescale_view(self.view_scale)
 
-        self.plan_trasnform = rendering.Transform()
+        self.plan_transform = rendering.Transform()
         if self.plan_type == "image":
             plan = ImageAsArray(self.plan_file_path, self.plan.swapaxes(0, 1)[::-1, :, :])
-            plan.add_attr(self.plan_trasnform)
+            plan.add_attr(self.plan_transform)
             self.viewer.add_geom(plan)
         elif self.plan_type == "text":
             for edge in self._generate_edges_from_vertices(self.plan):
-                edge.add_attr(self.plan_trasnform)
+                edge.add_attr(self.plan_transform)
                 self.viewer.add_geom(edge)
         else:
             assert "Rendering of this type of plan is not implemented."
 
         # adding element right on top of plan so it can be shown on top of plan and hide it
         background = rendering.Point()
-        background.add_attr(self.plan_trasnform)
+        background.add_attr(self.plan_transform)
         background.set_color(255, 255, 255)
         self.viewer.add_geom(background)
 
@@ -190,11 +192,11 @@ class Env2D(gym.Env):
 
         if plan_background is not None:
             background = ImageAsArray(self.plan_file_path, plan_background.swapaxes(0, 1)[::-1, :, :])
-            background.add_attr(self.plan_trasnform)
+            background.add_attr(self.plan_transform)
             self.viewer.geoms[-2] = background
         else:
             background = rendering.Point()
-            background.add_attr(self.plan_trasnform)
+            background.add_attr(self.plan_transform)
             background.set_color(255, 255, 255)
             self.viewer.geoms[-2] = background
 
@@ -203,6 +205,17 @@ class Env2D(gym.Env):
         self.drone_transform.set_rotation(theta)
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
+
+    def rescale_view(self, zoom_factor:float) -> None:
+        """
+        Zooms in/out rendered view based
+        :param zoom_factor:
+        :return:
+        """
+        self.view_scale = zoom_factor
+        self.viewer.transform.set_scale(self.view_scale, self.view_scale)
+        self.viewer.transform.set_translation((self.screen_width - self.plan_shape[0] * self.view_scale)/2,
+                                                   (self.screen_height - self.plan_shape[1] * self.view_scale)/2)
 
     def close(self):
         if self.viewer:
